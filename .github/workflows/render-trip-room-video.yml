@@ -1,0 +1,96 @@
+name: Render Trip Room Social Video
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/trip-room-video-renders/**/*.json"
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: Pending Trip Room render manifest
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: trip-room-video-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve render manifest
+        id: manifest
+        env:
+          MANUAL_MANIFEST: ${{ inputs.manifest_path }}
+        run: |
+          MANIFEST_PATH=""
+          if [ -n "$MANUAL_MANIFEST" ]; then
+            CANDIDATES=("$MANUAL_MANIFEST")
+          else
+            mapfile -t CANDIDATES < <(
+              git diff-tree --root --no-commit-id --name-only --diff-filter=AM -r HEAD -- data/trip-room-video-renders |
+                grep -E '\.json$'
+            )
+          fi
+          for CANDIDATE in "${CANDIDATES[@]}"; do
+            if [ -f "$CANDIDATE" ] &&
+              node scripts/trip-room-render-paths.mjs "$CANDIDATE" --pending > /dev/null 2>&1; then
+              MANIFEST_PATH="$CANDIDATE"
+              break
+            fi
+          done
+          if [ -z "$MANIFEST_PATH" ]; then
+            echo "No eligible pending render manifest found."
+            echo "pending=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "pending=true" >> "$GITHUB_OUTPUT"
+          echo "path=$MANIFEST_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Verify FFmpeg
+        if: steps.manifest.outputs.pending == 'true'
+        run: ffmpeg -version
+
+      - name: Render vertical MP4
+        id: render
+        if: steps.manifest.outputs.pending == 'true'
+        continue-on-error: true
+        run: node scripts/render-trip-room-video.mjs "${{ steps.manifest.outputs.path }}"
+
+      - name: Commit render result
+        id: commit
+        if: always() && steps.manifest.outputs.pending == 'true'
+        env:
+          MANIFEST_PATH: ${{ steps.manifest.outputs.path }}
+        run: |
+          OUTPUT_PATH="$(node scripts/trip-room-render-paths.mjs "$MANIFEST_PATH" --terminal)"
+          RENDER_STATUS="$(node scripts/trip-room-render-paths.mjs "$MANIFEST_PATH" --status)"
+          RENDER_ID="$(node scripts/trip-room-render-paths.mjs "$MANIFEST_PATH" --id)"
+          git config user.name "cove-video-renderer"
+          git config user.email "actions@users.noreply.github.com"
+          git add -- "$MANIFEST_PATH"
+          if [ "$RENDER_STATUS" = "completed" ]; then
+            if [ ! -f "$OUTPUT_PATH" ]; then
+              echo "Completed render output is missing."
+              exit 1
+            fi
+            git add -- "$OUTPUT_PATH"
+          fi
+          git commit -m "Complete Trip Room video render: $RENDER_ID"
+          node scripts/trip-room-render-paths.mjs --push-render-commit "$GITHUB_REF_NAME"
+
+      - name: Stop after a failed render
+        if: steps.manifest.outputs.pending == 'true' && steps.render.outcome != 'success'
+        run: exit 1
