@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "render_d428c4b7-785e-41c8-9b4f-1605b926f45e",
+  "status": "pending",
+  "bookingId": "dev_cove-dev-a185e1bb2854_booking",
+  "preset": "highlight",
+  "presetLabel": "Highlight cut",
+  "hook": "The lake day, cut to the good part.",
+  "boatName": "Cove Development Boat cove-dev-a185e1bb2854",
+  "locationName": "Lake of the Ozarks",
+  "scenes": [
+    {
+      "index": 0,
+      "mediaId": "doc_9a1f2133-ccc3-4ba6-9518-ee237fe9959a",
+      "kind": "image",
+      "sourceUrl": "https://raw.githubusercontent.com/jeffrwinters/Cove-Charters-Dev-Media/main/assets/bookings/dev_cove-dev-a185e1bb2854_booking/captains-log/20260730174712-cove-development-verification.png",
+      "title": "Synthetic development moment [fixture:4e8d8f09b1a09d9107b2b558fbe65b17]",
+      "durationSeconds": 1.6
+    }
+  ],
+  "sceneCount": 1,
+  "outroSeconds": 2,
+  "durationSeconds": 3.6,
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac"
+  },
+  "outputPath": "assets/bookings/dev_cove-dev-a185e1bb2854_booking/trip-room-videos/render_d428c4b7-785e-41c8-9b4f-1605b926f45e.mp4",
+  "outputUrl": "https://raw.githubusercontent.com/jeffrwinters/Cove-Charters-Dev-Media/main/assets/bookings/dev_cove-dev-a185e1bb2854_booking/trip-room-videos/render_d428c4b7-785e-41c8-9b4f-1605b926f45e.mp4",
+  "attempt": 1,
+  "retryOf": null,
+  "createdAt": "2026-07-30T17:47:20.144Z",
+  "completedAt": null,
+  "error": null
+}
