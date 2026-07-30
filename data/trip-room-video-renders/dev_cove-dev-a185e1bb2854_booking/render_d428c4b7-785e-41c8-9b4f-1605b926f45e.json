@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "render_d428c4b7-785e-41c8-9b4f-1605b926f45e",
-  "status": "pending",
+  "status": "completed",
   "bookingId": "dev_cove-dev-a185e1bb2854_booking",
   "preset": "highlight",
   "presetLabel": "Highlight cut",
@@ -33,6 +33,6 @@
   "attempt": 1,
   "retryOf": null,
   "createdAt": "2026-07-30T17:47:20.144Z",
-  "completedAt": null,
+  "completedAt": "2026-07-30T18:26:58.002Z",
   "error": null
 }
