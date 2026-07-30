@@ -59,6 +59,12 @@ jobs:
           echo "pending=true" >> "$GITHUB_OUTPUT"
           echo "path=$MANIFEST_PATH" >> "$GITHUB_OUTPUT"
 
+      - name: Install FFmpeg
+        if: steps.manifest.outputs.pending == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+
       - name: Verify FFmpeg
         if: steps.manifest.outputs.pending == 'true'
         run: ffmpeg -version
